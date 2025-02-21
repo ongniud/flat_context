@@ -18,9 +18,9 @@ type FlatContext struct {
 // New creates a new flattened context.
 // It takes a parent context as an argument and initializes a new FlatContext
 // with an empty map for storing values.
-func New(parent context.Context) *FlatContext {
+func New(ctx context.Context) *FlatContext {
 	return &FlatContext{
-		parent: parent,
+		parent: ctx,
 		values: make(map[interface{}]interface{}),
 	}
 }
@@ -67,10 +67,10 @@ func (c *FlatContext) Err() error {
 // If not, it tries to retrieve the value from the parent context.
 func (c *FlatContext) Value(key interface{}) interface{} {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
 	if value, ok := c.values[key]; ok {
 		return value
 	}
+	c.mu.RUnlock()
 	// If not found in the current context, look for it in the parent context.
 	return c.parent.Value(key)
 }
